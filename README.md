@@ -37,21 +37,29 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 3. Compile the ROS code package under the Livox-SDK-ROS directory by typing the following command in terminal:
      `catkin_make`
 
-4. Run the compiled ROS nodes:
+4. Source setup.bash file:
+
+     `source ./devel/setup.bash`
+
+5. Run the compiled ROS nodes:
      `rosrun display_lidar_points display_lidar_points_node`
      or
      `rosrun display_hub_points display_hub_points_node`
 
-5. Open a new terminal, and run roscore under the Livox-SDK-ROS directory:
+6. Open a new terminal, and run roscore under the Livox-SDK-ROS directory:
      `roscore`
 
-6. Open another new terminal, and run rviz under the Livox-SDK-ROS directory:
+7. Open another new terminal, and run rviz under the Livox-SDK-ROS directory:
      `rosrun rviz rviz`
 
-7. Set ROS RVIZ:
+8. Set ROS RVIZ:
 
-  8. Create new visualization by display type, and select PointCloud;
+  9. Create new visualization by display type, and select PointCloud;
 
-  9. Set the Fixed Frame to “sensor_frame” in Global Options and set Frame Rate to 20;
+  10. Set the Fixed Frame to “sensor_frame” in Global Options and set Frame Rate to 20;
 
-  10. Select “/cloud” in Topic under the newly created PointCLoud.
+  11. Select “/cloud” in Topic under the newly created PointCLoud.
+
+  12. rviz setting demo:
+
+      ![rviz_setting](/home/feng/myproject/livox_ros_demo/rviz_setting.png)
