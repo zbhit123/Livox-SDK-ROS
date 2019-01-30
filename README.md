@@ -62,4 +62,4 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 
   12. rviz setting demo:
 
-      ![rviz_setting](/home/feng/myproject/livox_ros_demo/rviz_setting.png)
+      ![rviz_setting](rviz_setting.png)
