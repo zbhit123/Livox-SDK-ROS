@@ -29,7 +29,7 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 
    The broadcast code consists of its serial number and an additional number (1,2, or 3). The serial number can be found on the body of the LiDAR unit (below the QR code). The detailed format is shown as below:
 
-   ![broadcast_code](F:\livoxtech_ros_demo\broadcast_code.png)
+   ![broadcast_code](broadcast_code.png)
 
 3. Compile the ROS code package under the Livox-SDK-ROS directory by typing the following command in terminal:
     ```
