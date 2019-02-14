@@ -77,9 +77,9 @@ DeviceItem lidars[kMaxLidarCount];
 
 /* user add broadcast code here */
 const char* broadcast_code_list[] = {
-  "1LVDG19006F84K1",
-  "1LVDG19006F84K2",
-  "1LVDG19006F84K3",
+  "000000000000001",
+  "000000000000002",
+  "000000000000003",
 };
 
 #define BROADCAST_CODE_LIST_SIZE    (sizeof(broadcast_code_list) / sizeof(intptr_t))
@@ -135,26 +135,24 @@ uint32_t QueueIsEmpty(PointCloudQueue *queue) {
 static uint32_t PublishPointcloudData(PointCloudQueue *queue, uint32_t num) {
   /* init point cloud data struct */
   
-  PointCloud::Ptr msg (new PointCloud);
-  msg->header.frame_id = "sensor_frame";
-  msg->height = 1;
-  msg->width = num;
+  PointCloud::Ptr cloud (new PointCloud);
+  cloud->header.frame_id = "sensor_frame";
+  cloud->height = 1;
+  cloud->width = num;
   
   
   LivoxPoint points;
   for (unsigned int i = 0; i < num; i++) {
     QueuePop(queue, &points);
-    pcl::PointXYZI pnt;
-    pnt.x = points.x;
-    pnt.y = points.y;
-    pnt.z = points.z;
-    pnt.intensity = (float) points.reflectivity;
-    msg->points.push_back(pnt);
-    //cloud.channels[0].values[i] = points.reflectivity;
-    //cloud.channels[0].values[i] = 255;
+    pcl::PointXYZI point;
+    point.x = points.x;
+    point.y = points.y;
+    point.z = points.z;
+    point.intensity = (float) points.reflectivity;
+    cloud->points.push_back(point);
   }
 
-  cloud_pub.publish(msg);
+  cloud_pub.publish(cloud);
 }
 
 static void PointCloudConvert(LivoxPoint *p_dpoint, LivoxRawPoint *p_raw_point) {

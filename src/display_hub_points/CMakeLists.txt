@@ -16,7 +16,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED) 
 
-find_package(Boost REQUIRED COMPONENTS thread) 
+find_package(Boost REQUIRED COMPONENTS thread)
+
+## get pointcloud package
+find_package( PCL REQUIRED )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -123,6 +126,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -163,6 +167,10 @@ include_directories(../livox_sdk_lib
 
 link_directories(../livox_sdk_lib)
 
+## PCL library
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 add_executable(${PROJECT_NAME}_node 
                ${source_list})
 
@@ -180,6 +188,7 @@ add_executable(${PROJECT_NAME}_node
 target_link_libraries(${PROJECT_NAME}_node
     liblivox_sdk_static.a
 	${APR_LIBRARIES}
+    ${PCL_LIBRARIES}
 	${catkin_LIBRARIES}
     ${Boost_LIBRARIES}
     -lrt
