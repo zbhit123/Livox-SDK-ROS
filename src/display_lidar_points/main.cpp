@@ -32,14 +32,13 @@
 
 #include "livox_sdk.h"
 #include <ros/ros.h>
-#include <sensor_msgs/PointCloud.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
-
+#include <pcl_ros/point_cloud.h>
 
 #define BUFFER_POINTS                   (32*1024) // must be 2^n
 #define POINTS_PER_FRAME                5000      // must < BUFFER_POINTS
 #define PACKET_GAP_MISS_TIME            (1500000) // 1.5ms
+
+typedef pcl::PointCloud<pcl::PointXYZI> PointCloud;
 
 struct PointCloudQueue {
   LivoxPoint buffer[BUFFER_POINTS];
@@ -78,9 +77,9 @@ DeviceItem lidars[kMaxLidarCount];
 
 /* user add broadcast code here */
 const char* broadcast_code_list[] = {
-  "0T9DFBC00403801",
-  "0T9DFBC00403812",
-  "0T9DFBC00403853",
+  "000000000000001",
+  "000000000000002",
+  "000000000000003",
 };
 
 #define BROADCAST_CODE_LIST_SIZE    (sizeof(broadcast_code_list) / sizeof(intptr_t))
@@ -135,25 +134,22 @@ uint32_t QueueIsEmpty(PointCloudQueue *queue) {
 /* for pointcloud convert process */
 static uint32_t PublishPointcloudData(PointCloudQueue *queue, uint32_t num) {
   /* init point cloud data struct */
-  sensor_msgs::PointCloud cloud;
-
-  cloud.header.stamp = ros::Time::now();
-  cloud.header.frame_id = "sensor_frame";
-
-  cloud.points.resize(num);
-  cloud.channels.resize(1);
-  cloud.channels[0].name = "rgb";
-  cloud.channels[0].values.resize(num);
-
+  
+  PointCloud::Ptr cloud (new PointCloud);
+  cloud->header.frame_id = "sensor_frame";
+  cloud->height = 1;
+  cloud->width = num;
+  
+  
   LivoxPoint points;
-
   for (unsigned int i = 0; i < num; i++) {
     QueuePop(queue, &points);
-    cloud.points[i].x = points.x;
-    cloud.points[i].y = points.y;
-    cloud.points[i].z = points.z;
-    cloud.channels[0].values[i] = points.reflectivity;
-    //cloud.channels[0].values[i] = 255;
+    pcl::PointXYZI point;
+    point.x = points.x;
+    point.y = points.y;
+    point.z = points.z;
+    point.intensity = (float) points.reflectivity;
+    cloud->points.push_back(point);
   }
 
   cloud_pub.publish(cloud);
@@ -348,7 +344,7 @@ int main(int argc, char **argv) {
   /* ros related */
   ros::init(argc, argv, "point_cloud_publisher");
   ros::NodeHandle point_cloud_node;
-  cloud_pub = point_cloud_node.advertise<sensor_msgs::PointCloud>("cloud", POINTS_PER_FRAME);
+  cloud_pub = point_cloud_node.advertise<PointCloud>("cloud", POINTS_PER_FRAME);
 
   ros::Time::init();
   ros::Rate r(500); // 500 hz
