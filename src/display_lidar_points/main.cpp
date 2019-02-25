@@ -30,6 +30,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include <vector>
+
 #include "livox_sdk.h"
 #include <ros/ros.h>
 #include <pcl_ros/point_cloud.h>
@@ -37,6 +39,12 @@
 #define BUFFER_POINTS                   (32*1024) // must be 2^n
 #define POINTS_PER_FRAME                5000      // must < BUFFER_POINTS
 #define PACKET_GAP_MISS_TIME            (1500000) // 1.5ms
+
+#define BD_ARGC_NUM                     (4)
+#define BD_ARGV_POS                     (1)
+#define COMMANDLINE_BD_SIZE             (15)
+
+
 
 typedef pcl::PointCloud<pcl::PointXYZI> PointCloud;
 
@@ -78,12 +86,12 @@ DeviceItem lidars[kMaxLidarCount];
 /* user add broadcast code here */
 const char* broadcast_code_list[] = {
   "000000000000001",
-  "000000000000002",
-  "000000000000003",
 };
 
 #define BROADCAST_CODE_LIST_SIZE    (sizeof(broadcast_code_list) / sizeof(intptr_t))
 
+/* total broadcast code, include broadcast_code_list and commandline input */
+std::vector<std::string > total_broadcast_code;
 
 /* for pointcloud queue process */
 void PointCloudPoolInit(void) {
@@ -134,16 +142,15 @@ uint32_t QueueIsEmpty(PointCloudQueue *queue) {
 /* for pointcloud convert process */
 static uint32_t PublishPointcloudData(PointCloudQueue *queue, uint32_t num) {
   /* init point cloud data struct */
-  
   PointCloud::Ptr cloud (new PointCloud);
-  cloud->header.frame_id = "sensor_frame";
+  cloud->header.frame_id = "livox_frame";
   cloud->height = 1;
   cloud->width = num;
-  
-  
+
   LivoxPoint points;
   for (unsigned int i = 0; i < num; i++) {
     QueuePop(queue, &points);
+
     pcl::PointXYZI point;
     point.x = points.x;
     point.y = points.y;
@@ -179,16 +186,16 @@ void GetLidarData(uint8_t handle, LivoxEthPacket *data, uint32_t data_num) {
       (lidar_pack->timestamp_type == kTimestampTypePps)) {
     LidarPacketStatistic *packet_statistic = &lidars[handle].statistic_info;
     uint64_t cur_timestamp = *((uint64_t *)(lidar_pack->timestamp));
-    uint64_t packet_gap    = cur_timestamp - packet_statistic->last_timestamp;
+    int64_t packet_gap    = cur_timestamp - packet_statistic->last_timestamp;
 
     packet_statistic->receive_packet_count++;
     if (packet_statistic->last_timestamp) {
       if (packet_gap > PACKET_GAP_MISS_TIME) {
         packet_statistic->loss_packet_count++;
-        printf("%s miss count : %d %lu total count : %d\r\n", \
-               lidars[handle].info.broadcast_code, \
-               packet_statistic->loss_packet_count,cur_timestamp, \
-               packet_statistic->receive_packet_count);
+        ROS_INFO("%d miss count : %ld %lu %lu %d", \
+               handle, packet_gap,\
+               cur_timestamp, packet_statistic->last_timestamp,\
+               packet_statistic->loss_packet_count);
       }
     }
 
@@ -216,16 +223,49 @@ void PollPointcloudData(void) {
   for (int i = 0; i < kMaxLidarCount; i++) {
     PointCloudQueue *p_queue  = &point_cloud_queue_pool[i];
     if (QueueUsedSize(p_queue) > POINTS_PER_FRAME) {
-      //printf("%d %d %d %d\r\n", i, p_queue->rd_idx, p_queue->wr_idx, QueueUsedSize(p_queue));
+      //ROS_DEBUG("%d %d %d %d\r\n", i, p_queue->rd_idx, p_queue->wr_idx, QueueUsedSize(p_queue));
       PublishPointcloudData(p_queue, POINTS_PER_FRAME);
     }
   }
 }
 
+/** add bd to total_broadcast_code */
+void add_broadcast_code(const char* bd_str) {
+  total_broadcast_code.push_back(bd_str);
+}
+
+
+/** add bd in broadcast_code_list to total_broadcast_code */
+void add_local_broadcast_code(void) {
+  for (int i = 0; i < BROADCAST_CODE_LIST_SIZE; ++i) {
+    add_broadcast_code(broadcast_code_list[i]);
+  }
+}
+
+/** add commandline bd to total_broadcast_code */
+void add_commandline_broadcast_code(const char* cammandline_str) {
+  char* strs = new char[strlen(cammandline_str) + 1];
+  strcpy(strs, cammandline_str);
+
+  std::string pattern = "&";
+  char* bd_str  = strtok(strs, pattern.c_str());
+  while (bd_str != NULL) {
+    ROS_INFO("commandline input bd:%s", bd_str);
+    if (COMMANDLINE_BD_SIZE == strlen(bd_str)) {
+      add_broadcast_code(bd_str);
+    } else {
+      ROS_INFO("Invalid bd:%s", bd_str);
+    }
+    bd_str = strtok(NULL, pattern.c_str());
+  }
+
+  delete [] strs;
+}
+
 
 /** Callback function of starting sampling. */
 void OnSampleCallback(uint8_t status, uint8_t handle, uint8_t response, void *data) {
-  printf("OnSampleCallback statue %d handle %d response %d \n", status, handle, response);
+  ROS_INFO("OnSampleCallback statue %d handle %d response %d", status, handle, response);
   if (status == kStatusSuccess) {
     if (response != 0) {
       lidars[handle].device_state = kDeviceStateConnect;
@@ -242,14 +282,14 @@ void OnStopSampleCallback(uint8_t status, uint8_t handle, uint8_t response, void
 /** Query the firmware version of Livox LiDAR. */
 void OnDeviceInformation(uint8_t status, uint8_t handle, DeviceInformationResponse *ack, void *data) {
   if (status != kStatusSuccess) {
-    printf("Device Query Informations Failed %d\n", status);
+    ROS_INFO("Device Query Informations Failed %d", status);
   }
   if (ack) {
-    printf("firm ver: %d.%d.%d.%d\n",
-           ack->firmware_version[0],
-           ack->firmware_version[1],
-           ack->firmware_version[2],
-           ack->firmware_version[3]);
+    ROS_INFO("firm ver: %d.%d.%d.%d",
+             ack->firmware_version[0],
+             ack->firmware_version[1],
+             ack->firmware_version[2],
+             ack->firmware_version[3]);
   }
 }
 
@@ -258,7 +298,9 @@ void OnDeviceChange(const DeviceInfo *info, DeviceEvent type) {
   if (info == NULL) {
     return;
   }
-  printf("OnDeviceChange broadcast code %s update type %d\n", info->broadcast_code, type);
+
+  ROS_INFO("OnDeviceChange broadcast code %s update type %d", info->broadcast_code, type);
+
   uint8_t handle = info->handle;
   if (handle >= kMaxLidarCount) {
     return;
@@ -276,9 +318,9 @@ void OnDeviceChange(const DeviceInfo *info, DeviceEvent type) {
   }
 
   if (lidars[handle].device_state == kDeviceStateConnect) {
-    printf("Device State error_code %d\n", lidars[handle].info.status.status_code);
-    printf("Device State working state %d\n", lidars[handle].info.state);
-    printf("Device feature %d\n", lidars[handle].info.feature);
+    ROS_INFO("Device State error_code %d", lidars[handle].info.status.status_code);
+    ROS_INFO("Device State working state %d", lidars[handle].info.state);
+    ROS_INFO("Device feature %d", lidars[handle].info.feature);
     if (lidars[handle].info.state == kLidarStateNormal && lidars[handle].info.status.status_code == 0) {
       if (lidars[handle].info.type == kDeviceTypeHub) {
         HubStartSampling(OnSampleCallback, NULL);
@@ -296,17 +338,17 @@ void OnDeviceBroadcast(const BroadcastDeviceInfo *info) {
     return;
   }
 
-  printf("Receive Broadcast Code %s\n", info->broadcast_code);
+  ROS_INFO("Receive Broadcast Code %s", info->broadcast_code);
   bool found = false;
 
-  int i = 0;
-  for (i = 0; i < BROADCAST_CODE_LIST_SIZE; ++i) {
-    if (strncmp(info->broadcast_code, broadcast_code_list[i], kBroadcastCodeSize) == 0) {
+  for (int i = 0; i < total_broadcast_code.size(); ++i) {
+    if (strncmp(info->broadcast_code, total_broadcast_code[i].c_str(), kBroadcastCodeSize) == 0) {
       found = true;
       break;
     }
   }
   if (!found) {
+    ROS_INFO("Not in the broacast_code_list, please add it to if want to connect!");
     return;
   }
 
@@ -322,14 +364,22 @@ void OnDeviceBroadcast(const BroadcastDeviceInfo *info) {
 
 
 int main(int argc, char **argv) {
+  if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+    ros::console::notifyLoggerLevelsChanged();
+  }
 
-  printf("Livox-SDK ros demo\r\n");
+  ROS_INFO("Livox-SDK ros demo");
 
   PointCloudPoolInit();
-
   if (!Init()) {
-    printf("Livox-SDK init fail!\r\n");
+    ROS_FATAL("Livox-SDK init fail!");
     return -1;
+  }
+
+  add_local_broadcast_code();
+  if (argc >= BD_ARGC_NUM) {
+    ROS_INFO("Commandline input %s", argv[BD_ARGV_POS]);
+    add_commandline_broadcast_code(argv[BD_ARGV_POS]);
   }
 
   memset(lidars, 0, sizeof(lidars));
@@ -342,9 +392,9 @@ int main(int argc, char **argv) {
   }
 
   /* ros related */
-  ros::init(argc, argv, "point_cloud_publisher");
-  ros::NodeHandle point_cloud_node;
-  cloud_pub = point_cloud_node.advertise<PointCloud>("cloud", POINTS_PER_FRAME);
+  ros::init(argc, argv, "livox_lidar_publisher");
+  ros::NodeHandle livox_node;
+  cloud_pub = livox_node.advertise<PointCloud>("livox/lidar", POINTS_PER_FRAME);
 
   ros::Time::init();
   ros::Rate r(500); // 500 hz

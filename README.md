@@ -1,7 +1,3 @@
-# Official Q&A Site
-
-https://groups.google.com/forum/#!forum/livox-lidars
-
 # Livox ROS Demo
 
 Livox ROS demo is an application software running under ROS environment. It supports point cloud display using rviz. The Livox ROS demo includes two software packages, which are applicable when the host is connected to LiDAR sensors directly or when a Livox Hub is in use, respectively. This Livox ROS demo supports Ubuntu 14.04 (ROS Indigo)/Ubuntu 16.04 (ROS Kinetic), both x86 and ARM. It has been tested on Intel i7 and Nvidia TX2. 
@@ -23,11 +19,8 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 2. Please replace the broadcast code lists in the `main.cpp` for both display_lidar_points package({Livox-SDK-ROS}/src/display_lidar_points/main.cpp) and display_hub_points package({Livox-SDK-ROS}/src/display_hub_points/main.cpp) with the broadcast codes of your devices before building. The corresponding code section in `main.cpp` is as follows:
 
    ```
-   #define BROADCAST_CODE_LIST_SIZE 3
-   char *broadcast_code_list[BROADCAST_CODE_LIST_SIZE] = {
-       "00000000000002",
-       "00000000000003",
-       "00000000000004"
+   char *broadcast_code_list[] = {
+       "00000000000001",
    };
    ```
 
@@ -45,33 +38,20 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
      source ./devel/setup.bash
     ```
 
-5. Run the compiled ROS nodes:
+5. Roslauch the compiled ROS nodes.
     ```
-     rosrun display_lidar_points display_lidar_points_node
+     roslaunch display_lidar_points livox_lidar.launch
     ```
      or
      ```
-     rosrun display_hub_points display_hub_points_node
+     rosrun display_hub_points livox_hub.launch
      ```
-
-6. Open a new terminal, and run roscore under the Livox-SDK-ROS directory:
+     
+6. Enter broadcast code from command line.
     ```
-     roscore
+     roslaunch display_lidar_points livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
     ```
-
-7. Open another new terminal, and run rviz under the Livox-SDK-ROS directory:
-    ```     
-    rosrun rviz rviz
-    ```
-
-8. Set ROS rviz:
-
-    * Create new visualization by display type, and select PointCloud;
-
-    * Set the Fixed Frame to “sensor_frame” in Global Options and set Frame Rate to 20;
-
-    * Select “/cloud” in Topic under the newly created PointCLoud.
-
-    * rviz settings demo:
-
-      ![rviz_setting](rviz_setting.png)
+     or
+     ```
+     rosrun display_hub_points livox_hub.launch bd_list:="hub_broadcast_code"
+     ```

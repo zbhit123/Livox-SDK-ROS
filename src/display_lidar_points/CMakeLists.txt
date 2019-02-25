@@ -14,9 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 
-find_package(Boost REQUIRED) 
+find_package(Boost REQUIRED)
 
-find_package(Boost REQUIRED COMPONENTS thread) 
+find_package(Boost REQUIRED COMPONENTS thread)
 
 ## get pointcloud package
 find_package( PCL REQUIRED )
@@ -154,24 +154,23 @@ FOREACH(dir ${SRC_DIR})
 	AUX_SOURCE_DIRECTORY(${dir} source_list)
 ENDFOREACH()
 
-find_package(PkgConfig) 
-pkg_check_modules(APR apr-1) 
-if (APR_FOUND) 
+find_package(PkgConfig)
+pkg_check_modules(APR apr-1)
+if (APR_FOUND)
 	message(${APR_INCLUDE_DIRS})
-    message(${APR_LIBRARIES}) 
+    message(${APR_LIBRARIES})
 endif (APR_FOUND)
 
-include_directories(../livox_sdk_lib
-	                ${APR_INCLUDE_DIRS}               
+include_directories(
+	               ${APR_INCLUDE_DIRS}
 	               )
 
-link_directories(../livox_sdk_lib)
 
 ## PCL library
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(${PROJECT_NAME}_node 
+add_executable(${PROJECT_NAME}_node
                ${source_list})
 
 ## Rename C++ executable without prefix
@@ -186,7 +185,7 @@ add_executable(${PROJECT_NAME}_node
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
-    liblivox_sdk_static.a
+    livox_sdk_static.a
 	${APR_LIBRARIES}
     ${PCL_LIBRARIES}
 	${catkin_LIBRARIES}
