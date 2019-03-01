@@ -361,7 +361,7 @@ void OnDeviceChange(const DeviceInfo *info, DeviceEvent type) {
     ROS_INFO("Device State error_code %d\n", hub.info.status.status_code);
     ROS_INFO("Device State working state %d\n", hub.info.state);
     ROS_INFO("Device feature %d\n", hub.info.feature);
-    if (hub.info.state == kLidarStateNormal && hub.info.status.status_code == 0) {
+    if (hub.info.state == kLidarStateNormal) {
       HubStartSampling(OnSampleCallback, NULL);
       hub.device_state = kDeviceStateSampling;
     }
