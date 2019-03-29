@@ -16,26 +16,42 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 
 1. Download or clone the code from the Livox-SDK/Livox-SDK-ROS repository on GitHub. 
 
-2. Compile the ROS code package under the Livox-SDK-ROS directory by typing the following command in terminal:
+2. Please replace the broadcast code lists in the `main.cpp` for both display_lidar_points package({Livox-SDK-ROS}/src/display_lidar_points/main.cpp) and display_hub_points package({Livox-SDK-ROS}/src/display_hub_points/main.cpp) with the broadcast codes of your devices before building. The corresponding code section in `main.cpp` is as follows:
+
+   ```
+   char *broadcast_code_list[] = {
+       "00000000000001",
+   };
+   ```
+
+   The broadcast code consists of its serial number and an additional number (1,2, or 3). The serial number can be found on the body of the LiDAR unit (below the QR code). The detailed format is shown as below:
+
+   ![broadcast_code](broadcast_code.png)
+
+3. Compile the ROS code package under the Livox-SDK-ROS directory by typing the following command in terminal:
     ```
-    catkin_make
+     catkin_make
     ```
 
-3. Source setup.bash file:
+4. Source setup.bash file:
     ```
-    source ./devel/setup.bash
+     source ./devel/setup.bash
     ```
 
-4. Launch the compiled ROS node with launch args of broadcast code.
-
+5. Roslauch the compiled ROS nodes.
     ```
-    roslaunch display_lidar_points livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+     roslaunch display_lidar_points livox_lidar.launch
+    ```
+     or
+     ```
+     rosrun display_hub_points livox_hub.launch
+     ```
+     
+6. Enter broadcast code from command line.
+    ```
+     roslaunch display_lidar_points livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
     ```
      or
      ```
      rosrun display_hub_points livox_hub.launch bd_list:="hub_broadcast_code"
      ```
-
-**NOTE**:Please replace the `"broadcast_code1&broadcast_code2&broadcast_code3"`with your LiDAR's broadcast code.The broadcast code consists of its serial number and an additional number (1,2, or 3). The serial number can be found on the body of the LiDAR unit (below the QR code). The detailed format is shown as below:
-
-![broadcast_code](broadcast_code.png)
