@@ -46,7 +46,7 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
      ```
      rosrun display_hub_points livox_hub.launch
      ```
-     
+    
 6. Enter broadcast code from command line.
     ```
      roslaunch display_lidar_points livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
@@ -55,3 +55,70 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
      ```
      rosrun display_hub_points livox_hub.launch bd_list:="hub_broadcast_code"
      ```
+
+### Run livox ros driver
+
+livox_ros_driver is a new ros package under the Livox-SDK/Livox-SDK-ROS/src directory, which is designed to gradually become the standard driver package for livox devices in the ros environment. The driver offers users a wealth of options:
+
+1. Publish pointcloud2 format point cloud and automatically load rviz；
+
+for example：
+
+```
+roslaunch livox_ros_driver livox_lidar_rviz.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+```
+
+or
+
+```
+roslaunch livox_ros_driver livox_hub_rviz.launch bd_list:="hub_broadcast_code" 
+```
+
+2. Publish pointcloud2 format point cloud only；
+
+for example：
+
+```
+roslaunch livox_ros_driver livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+```
+
+or
+
+```
+roslaunch livox_ros_driver livox_hub.launch bd_list:="hub_broadcast_code"
+```
+
+
+
+3. Publish livox custom format point cloud；
+
+for example：
+
+```
+roslaunch livox_ros_driver livox_msg.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+```
+
+or
+
+```
+roslaunch livox_ros_driver livox_hub_msg.launch bd_list:="hub_broadcast_code"
+```
+
+livox custom msg format：
+
+```
+Header header
+
+uint64 timebase
+
+uint32 timestep
+
+uint32 point_num
+
+uint8  lidar_id
+
+uint8[3]  rsvd
+
+CustomPoint[] points 
+```
+
