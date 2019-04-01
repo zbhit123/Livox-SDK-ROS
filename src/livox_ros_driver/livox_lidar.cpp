@@ -259,7 +259,7 @@ static uint32_t PublishPointcloud2(StoragePacketQueue* queue, uint32_t packet_nu
 
     if (!cloud->width) {
       cloud->header.stamp = timestamp / 1000; // to us
-      ROS_DEBUG("[%d]:%ld", handle, cloud->header.stamp);
+      ROS_DEBUG("[%d]:%ld us", handle, cloud->header.stamp);
     }
     cloud->width += storage_packet.point_num;
 
@@ -523,17 +523,21 @@ void OnDeviceBroadcast(const BroadcastDeviceInfo *info) {
 
   ROS_INFO("Receive Broadcast Code %s, please add it to broacast_code_list if want to connect!\n",\
            info->broadcast_code);
-  bool found = false;
 
-  for (int i = 0; i < total_broadcast_code.size(); ++i) {
-    if (strncmp(info->broadcast_code, total_broadcast_code[i].c_str(), kBroadcastCodeSize) == 0) {
-      found = true;
-      break;
+  if (total_broadcast_code.size() > 0) {
+    bool found = false;
+    for (int i = 0; i < total_broadcast_code.size(); ++i) {
+      if (strncmp(info->broadcast_code, total_broadcast_code[i].c_str(), kBroadcastCodeSize) == 0) {
+        found = true;
+        break;
+      }
     }
-  }
-  if (!found) {
-    ROS_INFO("Not in the broacast_code_list, please add it to if want to connect!");
-    return;
+    if (!found) {
+      ROS_INFO("Not in the broacast_code_list, please add it to if want to connect!");
+      return;
+    }
+  } else {
+    ROS_INFO("In automatic connection mode, will connect %s", info->broadcast_code);
   }
 
   bool result = false;
@@ -564,6 +568,15 @@ int main(int argc, char **argv) {
   if (argc >= BD_ARGC_NUM) {
     ROS_INFO("Commandline input %s", argv[BD_ARGV_POS]);
     AddCommandlineBroadcastCode(argv[BD_ARGV_POS]);
+  }
+
+  if (total_broadcast_code.size() > 0) {
+    ROS_INFO("list all valid bd:");
+    for (int i = 0; i < total_broadcast_code.size(); ++i) {
+      ROS_INFO("%s", total_broadcast_code[i].c_str());
+    }
+  } else {
+    ROS_INFO("No valid bd input, switch to automatic connection mode!");
   }
 
   memset(lidars, 0, sizeof(lidars));

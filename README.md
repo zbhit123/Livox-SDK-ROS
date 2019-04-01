@@ -95,7 +95,7 @@ roslaunch livox_ros_driver livox_hub.launch bd_list:="hub_broadcast_code"
 for example：
 
 ```
-roslaunch livox_ros_driver livox_msg.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+roslaunch livox_ros_driver livox_lidar_msg.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
 ```
 
 or

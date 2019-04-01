@@ -401,7 +401,7 @@ void PollPointcloudData(int msg_type) {
     }
 
     while (!QueueIsEmpty(p_queue)) {
-      //ROS_INFO("%d %d %d %d\r\n", i, p_queue->rd_idx, p_queue->wr_idx, QueueUsedSize(p_queue));
+      //ROS_DEBUG("%d %d %d %d\r\n", i, p_queue->rd_idx, p_queue->wr_idx, QueueUsedSize(p_queue));
       uint32_t used_size = QueueUsedSize(p_queue);
       if (kPointCloud2Msg == msg_type) {
         if (used_size == PublishPointcloud2(p_queue, used_size, i)) {
@@ -566,17 +566,21 @@ void OnDeviceBroadcast(const BroadcastDeviceInfo *info) {
 
   ROS_INFO("Receive Broadcast Code %s, please add it to broacast_code_list if want to connect!\n",\
            info->broadcast_code);
-  bool found = false;
 
-  for (int i = 0; i < total_broadcast_code.size(); ++i) {
-    if (strncmp(info->broadcast_code, total_broadcast_code[i].c_str(), kBroadcastCodeSize) == 0) {
-      found = true;
-      break;
+  if (total_broadcast_code.size() > 0) {
+    bool found = false;
+    for (int i = 0; i < total_broadcast_code.size(); ++i) {
+      if (strncmp(info->broadcast_code, total_broadcast_code[i].c_str(), kBroadcastCodeSize) == 0) {
+        found = true;
+        break;
+      }
     }
-  }
-  if (!found) {
-    ROS_INFO("Not in the broacast_code_list, please add it to if want to connect!");
-    return;
+    if (!found) {
+      ROS_INFO("Not in the broacast_code_list, please add it to if want to connect!");
+      return;
+    }
+  } else {
+    ROS_INFO("In automatic connection mode, will connect %s", info->broadcast_code);
   }
 
   bool result = false;
@@ -608,6 +612,15 @@ int main(int argc, char **argv) {
   if (argc >= BD_ARGC_NUM) {
     ROS_INFO("Commandline input %s", argv[BD_ARGV_POS]);
     AddCommandlineBroadcastCode(argv[BD_ARGV_POS]);
+  }
+
+  if (total_broadcast_code.size() > 0) {
+    ROS_INFO("list all valid bd:");
+    for (int i = 0; i < total_broadcast_code.size(); ++i) {
+      ROS_INFO("%s", total_broadcast_code[i].c_str());
+    }
+  } else {
+    ROS_INFO("No valid bd input, switch to automatic connection mode!");
   }
 
   memset(lidars, 0, sizeof(lidars));
