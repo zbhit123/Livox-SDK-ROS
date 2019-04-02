@@ -107,18 +107,19 @@ roslaunch livox_ros_driver livox_hub_msg.launch bd_list:="hub_broadcast_code"
 livox custom msg format：
 
 ```
-Header header
-
-uint64 timebase
-
-uint32 timestep
-
-uint32 point_num
-
-uint8  lidar_id
-
-uint8[3]  rsvd
-
-CustomPoint[] points 
+Header header             # ROS standard message header
+uint64 timebase           # The time of first point
+uint32 timestep           # Time interval between adjacent point clouds
+uint32 point_num          # Total number of pointclouds
+uint8  lidar_id           # Lidar device id number
+uint8[3]  rsvd            # Reserved use
+CustomPoint[] points      # Pointcloud data
 ```
-
+pointcloud format:
+```
+float32 x               # X axis, unit:m
+float32 y               # Y axis, unit:m
+float32 z               # Z axis, unit:m
+uint8 reflectivity      # reflectivity, 0~255
+uint8 line              # laser number in lidar
+```
