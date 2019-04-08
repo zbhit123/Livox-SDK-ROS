@@ -62,7 +62,7 @@ livox_ros_driver is a new ros package under the Livox-SDK/Livox-SDK-ROS/src dire
 
 1. Publish pointcloud2 format point cloud and automatically load rviz.
 
-for example：
+for example:
 
 ```
 roslaunch livox_ros_driver livox_lidar_rviz.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
@@ -76,7 +76,7 @@ roslaunch livox_ros_driver livox_hub_rviz.launch bd_list:="hub_broadcast_code"
 
 2. Publish pointcloud2 format point cloud only.
 
-for example：
+for example:
 
 ```
 roslaunch livox_ros_driver livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
@@ -92,7 +92,7 @@ roslaunch livox_ros_driver livox_hub.launch bd_list:="hub_broadcast_code"
 
 3. Publish livox custom format point cloud.
 
-for example：
+for example:
 
 ```
 roslaunch livox_ros_driver livox_lidar_msg.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
@@ -104,7 +104,7 @@ or
 roslaunch livox_ros_driver livox_hub_msg.launch bd_list:="hub_broadcast_code"
 ```
 
-livox custom msg format：
+livox custom msg format:
 
 ```
 Header header             # ROS standard message header
