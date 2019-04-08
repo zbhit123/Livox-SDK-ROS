@@ -60,7 +60,7 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 
 livox_ros_driver is a new ros package under the Livox-SDK/Livox-SDK-ROS/src directory, which is designed to gradually become the standard driver package for livox devices in the ros environment. The driver offers users a wealth of options:
 
-1. Publish pointcloud2 format point cloud and automatically load rviz；
+1. Publish pointcloud2 format point cloud and automatically load rviz.
 
 for example：
 
@@ -74,7 +74,7 @@ or
 roslaunch livox_ros_driver livox_hub_rviz.launch bd_list:="hub_broadcast_code" 
 ```
 
-2. Publish pointcloud2 format point cloud only；
+2. Publish pointcloud2 format point cloud only.
 
 for example：
 
@@ -90,7 +90,7 @@ roslaunch livox_ros_driver livox_hub.launch bd_list:="hub_broadcast_code"
 
 
 
-3. Publish livox custom format point cloud；
+3. Publish livox custom format point cloud.
 
 for example：
 
