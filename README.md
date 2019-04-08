@@ -109,7 +109,6 @@ livox custom msg format：
 ```
 Header header             # ROS standard message header
 uint64 timebase           # The time of first point
-uint32 timestep           # Time interval between adjacent point clouds
 uint32 point_num          # Total number of pointclouds
 uint8  lidar_id           # Lidar device id number
 uint8[3]  rsvd            # Reserved use
@@ -117,6 +116,7 @@ CustomPoint[] points      # Pointcloud data
 ```
 pointcloud format:
 ```
+uint32 offset_time      # offset time relative to the base time
 float32 x               # X axis, unit:m
 float32 y               # Y axis, unit:m
 float32 z               # Z axis, unit:m
