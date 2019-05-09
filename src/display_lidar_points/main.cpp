@@ -169,7 +169,7 @@ static void PointCloudConvert(LivoxPoint *p_dpoint, LivoxRawPoint *p_raw_point) 
   p_dpoint->reflectivity = p_raw_point->reflectivity;
 }
 
-void GetLidarData(uint8_t handle, LivoxEthPacket *data, uint32_t data_num) {
+void GetLidarData(uint8_t handle, LivoxEthPacket *data, uint32_t data_num, void *client_data) {
 
   LivoxEthPacket *lidar_pack = data;
 
@@ -356,7 +356,7 @@ void OnDeviceBroadcast(const BroadcastDeviceInfo *info) {
   uint8_t handle = 0;
   result = AddLidarToConnect(info->broadcast_code, &handle);
   if (result == kStatusSuccess && handle < kMaxLidarCount) {
-    SetDataCallback(handle, GetLidarData);
+    SetDataCallback(handle, GetLidarData, NULL);
     lidars[handle].handle = handle;
     lidars[handle].device_state = kDeviceStateDisconnect;
   }
