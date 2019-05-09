@@ -20,23 +20,33 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 
 1. Download or clone the code from the Livox-SDK/Livox-SDK-ROS repository on GitHub. 
 
-    
+    Clone source code from github:
+
+    `git clone https://github.com/Livox-SDK/Livox-SDK-ROS.git`
 
 2. Compile the ROS code package under the Livox-SDK-ROS directory by typing the following command in terminal:
-    ```
-     catkin_make
-    ```
 
-3. Source setup.bash file:
-    ```
-     source ./devel/setup.bash
-    ```
+     `cd Livox-SDK-ROS`
 
-4. Enter broadcast code from command line.
+     `catkin_make`
+
+3. Setup package environment:
+
+     `source ./devel/setup.bash`
+
+4. Enter broadcast code from command line:
     ```
-     roslaunch display_lidar_points livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+    roslaunch display_lidar_points lvox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
     ```
      or
      ```
-     rosrun display_hub_points livox_hub.launch bd_list:="hub_broadcast_code"
+    roslaunch display_hub_points livox_hub.launch bd_list:="hub_broadcast_code"
      ```
+
+# Livox ROS Driver
+
+livox_ros_driver is a new ros package, which is designed to gradually become the standard driver package for livox devices in the ros environment. 
+
+You can use the livox_ros_driver instead of Livox-SDK-ROS. For more information on livox_ros_driver please refer to the following link:
+
+[https://github.com/Livox-SDK/livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver)
