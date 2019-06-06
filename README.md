@@ -36,7 +36,7 @@ The Livox-SDK-ROS directory is organized in the form of ROS workspace, and is fu
 
 4. Enter broadcast code from command line:
     ```
-    roslaunch display_lidar_points lvox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
+    roslaunch display_lidar_points livox_lidar.launch bd_list:="broadcast_code1&broadcast_code2&broadcast_code3"
     ```
      or
      ```
